@@ -1,0 +1,46 @@
+{% extends 'flatpages/default.html' %}
+{% load censor %}
+{% load custom_tags %}
+{% block title %}
+Post
+{% endblock title %}
+
+
+
+{% block content %}
+<h6></h6>
+<form action="" method="get">
+   {{ filterset.form.as_p }}
+   <input type="submit" class="btn btn-dark" value="Найти" />
+</form>
+
+
+
+
+<h4>{{ time_now|date:'M d Y' }}</h4>
+{%for search_p in search%}
+    <a href="{% url 'post_detail' search_p.id %}"><h3>{{ search_p.heading|Censor}}</h3></a>
+    <h6>{{search_p.date_time}}</h6>
+    <h6>{{search_p.text|truncatechars:40}}</h6>
+{%endfor%}
+
+{% if page_obj.has_previous %}
+
+    <a href="?{% url_replace page=1 %}">1</a>
+    {% if page_obj.previous_page_number != 1 %}
+        ...
+        <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+    {% endif %}
+{% endif %}
+
+{{ page_obj.number }}
+
+{% if page_obj.has_next %}
+    <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+    {% if paginator.num_pages != page_obj.next_page_number %}
+        ...
+        <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+    {% endif %}
+{% endif %}
+
+{% endblock content %}

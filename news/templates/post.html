@@ -1,0 +1,57 @@
+{% extends 'flatpages/default.html' %}
+{% load censor %}
+{% load custom_tags %}
+{% block title %}
+Post
+{% endblock title %}
+
+
+
+{% block content %}
+
+
+<h5>{{ time_now|date:'M d Y' }}</h5>
+{%for post_p in post%}
+    <a href="{% url 'post_detail' post_p.id %}"><h4>{{ post_p.heading|Censor}}</h4></a>
+    <h8>{{post_p.date_time}}</h8>
+    <h8>{{post_p.text|truncatechars:40}}</h8>
+    <br>
+        {% if perms.news.change_post %}
+            <a href="{% url 'post_update' pk=post_p.id %}">
+            <button type="submit" class="btn btn-dark">Изменить</button>
+            </a>
+        {% endif %}
+        {% if perms.news.delete_post %}
+            <a href="{% url 'post_delete' pk=post_p.id %}">
+            <button type="submit" class="btn btn-dark">Удалить</button>
+            </a>
+        {% endif %}
+
+    </br>
+{%endfor%}
+
+
+
+
+
+<br>
+    {% if page_obj.has_previous %}
+
+     <a href="?{% url_replace page=1 %}">1</a>
+        {% if page_obj.previous_page_number != 1 %}
+            ...
+            <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+        {% endif %}
+    {% endif %}
+
+    {{ page_obj.number }}
+
+    {% if page_obj.has_next %}
+        <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+        {% if paginator.num_pages != page_obj.next_page_number %}
+            ...
+            <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+        {% endif %}
+    {% endif %}
+</br>
+{% endblock content %}
