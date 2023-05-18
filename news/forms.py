@@ -1,7 +1,7 @@
 from django import forms
 
 
-from .models import Post
+from .models import Post, Category
 
 
 class PostForm(forms.ModelForm):
@@ -11,6 +11,8 @@ class PostForm(forms.ModelForm):
             'heading',
             'CategoryType',
             'text',
+            'postCategory',
         ]
+
 
 
