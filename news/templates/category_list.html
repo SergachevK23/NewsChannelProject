@@ -13,9 +13,13 @@
     </title>
 </head>
 <body>
-
 {% block content %}
    <h1>Все новости </h1>
+    {% if is_not_subscriber %}
+    <p class ="text-center"><a href="{% url 'subscriber' category.id %}" class="btn btn-dark">Подписаться</a></p>
+    {%elif there_are_subscriber%}
+    <p class ="text-center"><a href="{% url 'unsubscriber' category.id %}" class="btn btn-dark">Отписаться</a></p>
+    {% endif %}
 
 
    <h3>{{ time_now|date:'M d Y' }}</h3>
@@ -23,8 +27,8 @@
 
 
 
-   {% if post %}
-       <table cellspacing="5" cellpadding="10" border="1" width="100%"> <!-- Начинаем описывать таблицу -->
+   {% if category_news_list %}
+       <table cellspacing="5" cellpadding="10" border="1" width="100%">
 
            <tr>
                <td>Заголовок</td>
@@ -38,24 +42,24 @@
                {% endif %}
            </tr>
 
-          {% for post_p in post %}
+          {% for cat in category_news_list %}
            <tr>
-               <td><a href="{% url 'post_detail' post_p.id %}">{{ post_p.heading|Censor}}</a></td>
-               <td>{{ post_p.date_time|date:'d.m.Y'}}</td>
-               <td>{{ post_p.text|truncatewords:20|Censor }}</td>
+               <td><a href="{% url 'post_detail' cat.id %}">{{cat.heading|Censor}}</a></td>
+               <td>{{ cat.date_time|date:'d.m.Y'}}</td>
+               <td>{{ cat.text|truncatewords:20|Censor }}</td>
                <td>
-                    {% for category in post_p.postCategory.all%}
-                    <a href="{% url 'category_list' category.id %}">{{ category }}</a>
+                    {% for category in cat.postCategory.all %}
+                    <a href="{% url 'category_list' category.id %}">{{category}}</a>
                     {% endfor %}
                </td>
 
                <td>
 
                     {% if perms.news.change_post %}
-                    <a href="{% url 'post_update' pk=post_p.id %}">Изменить</a>
+                    <a href="{% url 'post_update' pk=cat.id %}">Изменить</a>
                     {% endif %}
                     {% if perms.news.delete_post %}
-                    <a href="{% url 'post_delete' pk=post_p.id %}">Удалить</a>
+                    <a href="{% url 'post_delete' pk=cat.id %}">Удалить</a>
                     {% endif %}
                </td>
            </tr>

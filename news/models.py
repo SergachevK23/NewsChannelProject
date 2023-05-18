@@ -29,23 +29,12 @@ class Author(models.Model):
 
 
 class Category(models.Model):
-    sport = 'SP'
-    culture = 'CU'
-    technologies = 'TE'
-    science = 'SC'
-    animals = 'AN'
-    society = 'SO'
 
-    CATEGORY = [
-        (sport, 'Спорт'),
-        (culture, 'Культура'),
-        (technologies, 'Технологии'),
-        (science, 'Наука'),
-        (animals, 'Животные'),
-        (society, 'Общество')
-    ]
+    name = models.CharField(max_length=64, unique=True)
+    subscriber = models.ManyToManyField(User, blank=True,  related_name='categories')
 
-    name = models.CharField(max_length=2, choices=CATEGORY, default=society)
+    def __str__(self):
+        return self.name
 
 
 class Post(models.Model):
@@ -60,12 +49,12 @@ class Post(models.Model):
     ]
 
     CategoryType = models.CharField(max_length=2, choices=CATEGORY_CHOCE, default=NEWS)
+    postCategory = models.ManyToManyField(Category, through='PostCategory')
     date_time = models.DateTimeField(auto_now_add=True)
     heading = models.CharField(max_length=64)
     text = models.TextField()
     rating = models.SmallIntegerField(default=0)
 
-    postCategory = models.ManyToManyField(Category, through='PostCategory')
 
 
 
@@ -107,3 +96,4 @@ class Comment(models.Model):
     def dislikes(self):
         self.rating -= 1
         self.save()
+

@@ -1,4 +1,5 @@
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_protect
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 from datetime import datetime
 from .filters import PostFilter
@@ -6,6 +7,7 @@ from .forms import *
 from .models import *
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.shortcuts import get_object_or_404, render
 
 
 class PostList(ListView):
@@ -16,10 +18,14 @@ class PostList(ListView):
     context_object_name = 'post'
     paginate_by = 5
 
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['time_now'] = datetime.utcnow()
+
         return context
+
+
 
 
 class PostDetail(DetailView):
@@ -98,8 +104,38 @@ class PostDelete(PermissionRequiredMixin, DeleteView):
         context['heading'] = f'Удаление статьи: {self.object.heading}'
         return context
 
+class CategoryList(PostList):
+    model = Post
+    template_name = 'category_list.html'
+    context_object_name = 'category_news_list'
+
+    def get_queryset(self, ):
+        self.postCategory = get_object_or_404(Category, id=self.kwargs['pk'])
+        queryset = Post.objects.filter(postCategory=self.postCategory).order_by('-date_time')
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_not_subscriber'] = self.request.user not in self.postCategory.subscriber.all()
+        context['there_are_subscriber'] = self.request.user in self.postCategory.subscriber.all()
+        context['category'] = self.postCategory
+        return context
 
 
+@login_required
+@csrf_protect
+def subscriber(request, pk):
+    user = request.user
+    postCategory = Category.objects.get(id=pk)
+    postCategory.subscriber.add(user)
+    message = 'Вы успешно подписались на рассылку новостей категории'
+    return render(request, 'subscriber.html', {'category': postCategory, 'message': message})
 
-
-
+@login_required
+@csrf_protect
+def unsubscriber(request, pk):
+    user = request.user
+    postCategory = Category.objects.get(id=pk)
+    postCategory.subscriber.remove(user)
+    message = 'Вы успешно отписались на рассылку новостей категории'
+    return render(request, 'subscriber.html', {'category': postCategory, 'message': message})
