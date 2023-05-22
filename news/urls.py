@@ -13,4 +13,5 @@ urlpatterns = [
    path('categories/<int:pk>/subscriber', subscriber, name='subscriber'),
    path('categories/<int:pk>/unsubscriber', unsubscriber, name='unsubscriber'),
 
+
 ]

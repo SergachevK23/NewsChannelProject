@@ -7,8 +7,11 @@ from .forms import *
 from .models import *
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 
+from django.views import View
+from .tasks import *
+from django.http import HttpResponse
 
 class PostList(ListView):
     model = Post
@@ -24,6 +27,8 @@ class PostList(ListView):
         context['time_now'] = datetime.utcnow()
 
         return context
+
+
 
 
 
@@ -139,3 +144,19 @@ def unsubscriber(request, pk):
     postCategory.subscriber.remove(user)
     message = 'Вы успешно отписались на рассылку новостей категории'
     return render(request, 'subscriber.html', {'category': postCategory, 'message': message})
+
+
+
+
+class WeekView(View):
+    def get(self, request):
+        notify_about_new_post.delay()
+        print('celery working')
+        return redirect("/")
+
+
+class WeekViews(View):
+    def get(self, request):
+        notify_weekly.delay()
+        print('celery work')
+        return redirect("/")
