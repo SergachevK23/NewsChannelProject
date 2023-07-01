@@ -4,14 +4,17 @@ from django.views.generic import ListView, DetailView, CreateView, DeleteView, U
 from datetime import datetime
 from .filters import PostFilter
 from .forms import *
-from .models import *
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import get_object_or_404, render, redirect
 
 from django.views import View
 from .tasks import *
-from django.http import HttpResponse
+
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class PostList(ListView):
     model = Post
@@ -21,16 +24,11 @@ class PostList(ListView):
     context_object_name = 'post'
     paginate_by = 5
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['time_now'] = datetime.utcnow()
+        context['time_now'] = datetime.datetime.utcnow()
 
         return context
-
-
-
-
 
 
 class PostDetail(DetailView):
@@ -65,7 +63,6 @@ class PostAdd(PermissionRequiredMixin, CreateView):
     form_class = PostForm
     permission_required = ('news.add_post',)
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['heading'] = 'Добавление статьи на сайт'
@@ -84,7 +81,6 @@ class PostUpdate(PermissionRequiredMixin, UpdateView):
     form_class = PostForm
     permission_required = ('news.change_post',)
     login_url = 'home'
-
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -108,6 +104,7 @@ class PostDelete(PermissionRequiredMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         context['heading'] = f'Удаление статьи: {self.object.heading}'
         return context
+
 
 class CategoryList(PostList):
     model = Post
@@ -144,8 +141,6 @@ def unsubscriber(request, pk):
     postCategory.subscriber.remove(user)
     message = 'Вы успешно отписались на рассылку новостей категории'
     return render(request, 'subscriber.html', {'category': postCategory, 'message': message})
-
-
 
 
 class WeekView(View):
