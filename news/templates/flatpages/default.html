@@ -18,9 +18,10 @@
 </head>
 
 <body>
-
+{% load cache %} <!-- Загружаем кэширование -->
+  {% cache 30 navbarResponsive %}<!-- Кэшируем отдельный блок на 30 секунд -->
   <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
     <div class="container">
       <a class="navbar-brand" href="/news/"><font size="5" color="green" face="Bodoni MT Black">News Channel</font></a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,6 +53,7 @@
       </div>
     </div>
   </nav>
+  {% endcache %}
 
   <!-- Page Content -->
   <div class="container">

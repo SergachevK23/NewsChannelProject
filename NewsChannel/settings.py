@@ -177,9 +177,137 @@ APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 APSCHEDULER_RUN_NOW_TIMEOUT = 25
 
 
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = f'redis://default:y64sDcN2SIuWh2gaDA6UQJ0VAyexLwn3' \
+                    f'@redis-11623.c266.us-east-1-3.ec2.cloud.redislabs.com:11623'
+CELERY_RESULT_BACKEND = f'redis://default:y64sDcN2SIuWh2gaDA6UQJ0VAyexLwn3' \
+                        f'@redis-11623.c266.us-east-1-3.ec2.cloud.redislabs.com:11623'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Europe/Moscow'
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, 'cache_files'),
+    }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_logging': False,
+    'formatters': {
+        'simple': {
+            'format': '%(asctime)-24s %(levelname)-8s %(message)s',
+        },
+
+        'warning': {
+            'format': '{asctime} -- {levelname} -- {message} --> {pathname}',
+            'style': '{',
+        },
+
+        'error': {
+            'format': '{asctime} -- {levelname} -- {message} --> {pathname} *** {exc_info}',
+            'style': '{',
+        },
+
+        'file': {
+            'format': '{asctime} -- {levelname} -- {message} -- {module}',
+            'style': '{',
+        }
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'console_warning': {
+            'level': 'WARNING',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'warning'
+        },
+        'console_error': {
+            'level': 'ERROR',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'error'
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'formatter': 'file',
+            'filename': 'general.log',
+            'filters': ['require_debug_true'],
+        },
+        'file_errors': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'formatter': 'error',
+            'filename': 'errors.log'
+        },
+        'file_critical': {
+            'level': 'CRITICAL',
+            'class': 'logging.FileHandler',
+            'filename': 'errors.log',
+            'formatter': 'error'
+        },
+        'file_security': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'formatter': 'file',
+            'filename': 'security.log'
+        },
+        'mail': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'warning',
+        },
+        'general_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'general.log',
+            'filters': ['require_debug_true'],
+            'formatter': 'file',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'console_warning', 'console_error', 'file'],
+            'propagate': True,
+            'level': 'DEBUG'
+        },
+        'django.request': {
+            'handlers': ['file_errors', 'file_critical', 'mail'],
+            'propagate': True
+        },
+        'django.server': {
+            'handlers': ['file_errors', 'file_critical', 'mail'],
+            'propagate': True
+        },
+        'django.template': {
+            'handlers': ['file_errors', 'file_critical'],
+            'propagate': True
+        },
+        'django.db.backends': {
+            'handlers': ['file_errors', 'file_critical'],
+            'propagate': True
+        },
+        'django.security': {
+            'handlers': ['file_security'],
+            'propagate': True
+        },
+
+    }
+}
